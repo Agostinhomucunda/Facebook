@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recuperação de Página - Facebook</title>
+
+<style>
+body{font-family:Arial;background:#f0f2f5;margin:0;}
+.header{background:#1877f2;color:#fff;padding:14px;text-align:center;font-size:22px;font-weight:bold;}
+.container{max-width:420px;margin:30px auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
+h2{font-size:18px;margin-bottom:10px;}
+p{font-size:14px;color:#555;}
+input,textarea{width:100%;padding:10px;margin-top:8px;margin-bottom:12px;border:1px solid #ccc;border-radius:6px;}
+button{width:100%;padding:12px;background:#1877f2;color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer;margin-top:5px;}
+button:hover{background:#166fe5;}
+.step{display:none;}
+.step.active{display:block;}
+.profile-box{text-align:center;margin-bottom:10px;}
+.profile-box img{width:70px;height:70px;border-radius:50%;border:3px solid #1877f2;}
+.page-name{text-align:center;font-weight:bold;margin-bottom:10px;}
+.security{background:#f7f8fa;padding:10px;border-radius:6px;font-size:13px;margin-bottom:15px;}
+.security::before{content:"🛡️ ";}
+.success{text-align:center;color:green;font-weight:bold;}
+.back{background:#e4e6eb;color:#000;}
+.back:hover{background:#d8dadf;}
+.spinner{
+  border:4px solid #f3f3f3;
+  border-top:4px solid #1877f2;
+  border-radius:50%;
+  width:40px;height:40px;
+  animation:spin 1s linear infinite;
+  margin:20px auto;
+}
+@keyframes spin{0%{transform:rotate(0);}100%{transform:rotate(360deg);}}
+.blocked{color:red;text-align:center;font-weight:bold;}
+</style>
+</head>
+
+<body>
+
+<div class="header">Facebook</div>
+
+<div class="container">
+
+<!-- PASSO 1 -->
+<div class="step active" id="step1">
+<div class="profile-box">
+<img src="https://i.imgur.com/6VBx3io.png">
+</div>
+<div class="page-name">Memes_do_jp</div>
+
+<h2>Recebemos a tua solicitação</h2>
+
+<div class="security">
+Confirmamos que a página pode pertencer a ti.
+</div>
+
+<p>Podes continuar com o processo de recuperação de forma segura.</p>
+
+<button onclick="nextStep(2)">Continuar com a recuperação</button>
+</div>
+
+<!-- PASSO 2 -->
+<div class="step" id="step2">
+<h2>Verificação de dados</h2>
+
+<input type="text" placeholder="Nome do último administrador">
+<label>Mês e ano</label>
+<input type="month">
+
+<input type="text" placeholder="Nome atual da página">
+<input type="text" placeholder="Nome anterior da página (opcional)">
+
+<div class="security">
+Se nunca mudou o nome, deixa em branco.
+</div>
+
+<button class="back" onclick="nextStep(1)">Voltar</button>
+<button onclick="nextStep(3)">Continuar</button>
+</div>
+
+<!-- PASSO 3 -->
+<div class="step" id="step3">
+<h2>Email associado</h2>
+
+<input type="email" placeholder="Email que estava na página">
+
+<button class="back" onclick="nextStep(2)">Voltar</button>
+<button onclick="nextStep(4)">Prosseguir</button>
+</div>
+
+<!-- PASSO 4 -->
+<div class="step" id="step4">
+<h2>Confirmação visual</h2>
+
+<textarea placeholder="Descreve algo que havia na página"></textarea>
+
+<label>Foto de perfil antiga</label>
+<input type="file">
+
+<div class="security">
+Isto ajuda a confirmar que eras o verdadeiro proprietário.
+</div>
+
+<button class="back" onclick="nextStep(3)">Voltar</button>
+<button onclick="startAnalysis()">Enviar</button>
+</div>
+
+<!-- PASSO 5 ANALISANDO -->
+<div class="step" id="step5">
+<h2>Analisando informações</h2>
+<div class="spinner"></div>
+<p style="text-align:center;">Aguarde alguns segundos e não desligue o ecrã.</p>
+</div>
+
+<!-- PASSO 6 -->
+<div class="step" id="step6">
+<h2>Código de confirmação</h2>
+
+<p style="font-size:13px;">
+Adiciona o código que usaste ao solicitar a recuperação.<br>
+Ou solicita um novo código no número:<br>
+<strong>+244951875350</strong>
+</p>
+
+<input type="text" id="codigo" placeholder="Digite o código de recuperação">
+
+<p id="tentativas"></p>
+
+<button class="back" onclick="nextStep(4)">Voltar</button>
+<button onclick="verificarCodigo()">Finalizar recuperação</button>
+</div>
+
+<!-- PASSO BLOQUEADO -->
+<div class="step" id="blocked">
+<p class="blocked">Acesso bloqueado. Número máximo de tentativas excedido.</p>
+</div>
+
+<!-- PASSO FINAL -->
+<div class="step" id="step8">
+<h2 class="success">Recuperação concluída ✓</h2>
+<div class="security">
+A página será transferida para a nova conta administradora após validação final.
+</div>
+</div>
+
+</div>
+
+<script>
+let tentativas = 5;
+
+function nextStep(step){
+  document.querySelectorAll(".step").forEach(el => el.classList.remove("active"));
+  document.getElementById("step"+step)?.classList.add("active");
+}
+
+function startAnalysis(){
+  nextStep(5);
+  setTimeout(() => {
+    nextStep(6);
+  }, 10000);
+}
+
+function verificarCodigo(){
+  const codigo = document.getElementById("codigo").value;
+  const aviso = document.getElementById("tentativas");
+
+  if(codigo === "4321"){
+    nextStep(8);
+  }else{
+    tentativas--;
+    if(tentativas > 0){
+      aviso.innerText = "Código incorreto. Tentativas restantes: " + tentativas;
+    }else{
+      document.querySelectorAll(".step").forEach(el => el.classList.remove("active"));
+      document.getElementById("blocked").classList.add("active");
+    }
+  }
+}
+</script>
+
+</body>
+</html>
