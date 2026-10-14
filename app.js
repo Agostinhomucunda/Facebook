@@ -24,7 +24,7 @@ function detectPlatform(value) {
   } catch { return null; }
 }
 
-scanButton.addEventListener('click', () => {
+scanButton.addEventListener('click', async () => {
   const value = urlInput.value.trim();
   result.hidden = false;
   result.classList.remove('warning');
@@ -39,7 +39,19 @@ scanButton.addEventListener('click', () => {
     result.innerHTML = '<strong>Link não reconhecido.</strong><br>Usa o endereço público de um perfil ou publicação. Não coles credenciais nem códigos de acesso.';
     return;
   }
-  result.innerHTML = `<strong>${platform.name} identificado.</strong><br>${platform.recovery} Um site externo não pode obter conteúdo restrito apenas pelo link. Depois de exportares os ficheiros pela plataforma, adiciona-os no passo 03.`;
+  result.innerHTML = `<strong>${platform.name} identificado.</strong><br>A analisar a imagem pública…`;
+  scanButton.disabled = true;
+  try {
+    const response = await fetch(`/api/extract-image?url=${encodeURIComponent(value)}`);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Não foi encontrada uma imagem pública.');
+    result.innerHTML = `<strong>${data.title} — imagem pública encontrada.</strong><br><a class="result-link" href="/api/download-image?url=${encodeURIComponent(data.imageUrl)}">Baixar imagem original disponível ↓</a><br><small>Se o perfil estiver restrito, só será devolvido o que a própria página tornar público.</small>`;
+  } catch (error) {
+    result.classList.add('warning');
+    result.innerHTML = `<strong>Não foi possível obter uma imagem pública.</strong><br>${error.message}<br><small>${platform.recovery}</small>`;
+  } finally {
+    scanButton.disabled = false;
+  }
 });
 
 imageDownloadButton.addEventListener('click', () => {

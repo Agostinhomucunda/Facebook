@@ -1,0 +1,17 @@
+{
+  "name": "fotovault",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Arquivo pessoal com extração de imagens públicas via Render",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "cheerio": "^1.0.0"
+  }
+}

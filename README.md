@@ -23,4 +23,14 @@ Um site GitHub Pages é uma aplicação estática. Não deve tentar contornar pe
 
 O site não necessita de build, Node.js ou variáveis secretas.
 
+## Deploy no Render
+
+O repositório inclui `package.json`, `server.js` e `render.yaml`. No Render, cria um **Web Service** ligado a este repositório com:
+
+- Build Command: `npm install`
+- Start Command: `npm start`
+- Health check: `/health`
+
+O serviço Express serve a interface e disponibiliza `/api/extract-image` e `/api/download-image`. A API só aceita páginas HTTPS públicas do Facebook e imagens de domínios CDN do Facebook; não recebe cookies, palavras-passe ou códigos.
+
 Quando é usado um link de perfil, a página apenas identifica a plataforma. Para descarregar uma pré-visualização pública, cola o endereço direto do ficheiro JPG/PNG/WEBP obtido na própria página ou através da opção oficial de guardar a imagem. Um link de perfil restrito, sem sessão ou sem autorização, não fornece um ficheiro que o site possa descarregar legitimamente.
