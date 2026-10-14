@@ -1,5 +1,4 @@
 import express from 'express';
-import * as cheerio from 'cheerio';
 import { URL } from 'node:url';
 
 const app = express();
@@ -40,6 +39,17 @@ async function fetchWithTimeout(url, options = {}) {
   }
 }
 
+function decodeHtml(value) {
+  return value.replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16))).replace(/&#([0-9]+);/g, (_, number) => String.fromCodePoint(Number(number))).replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#x27;|&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+}
+
+function metaContent(html, key, attribute = 'property') {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`<meta\\s+[^>]*${attribute}=["']${escaped}["'][^>]*content=["']([^"']+)["'][^>]*>`, 'i');
+  const reversePattern = new RegExp(`<meta\\s+[^>]*content=["']([^"']+)["'][^>]*${attribute}=["']${escaped}["'][^>]*>`, 'i');
+  return decodeHtml(pattern.exec(html)?.[1] || reversePattern.exec(html)?.[1] || '');
+}
+
 app.use(express.static(publicDir, { extensions: ['html'] }));
 app.get('/health', (_req, res) => res.json({ ok: true, service: 'fotovault' }));
 
@@ -49,11 +59,10 @@ app.get('/api/extract-image', async (req, res) => {
     const response = await fetchWithTimeout(pageUrl.href);
     if (!response.ok) throw new Error(`A página respondeu com HTTP ${response.status}.`);
     const html = await response.text();
-    const $ = cheerio.load(html);
-    const rawImage = $('meta[property="og:image"]').attr('content') || $('meta[name="twitter:image"]').attr('content');
+    const rawImage = metaContent(html, 'og:image') || metaContent(html, 'twitter:image', 'name');
     if (!rawImage) return res.status(404).json({ error: 'Não foi encontrada uma imagem pública nesta página.' });
     const imageUrl = validateImageUrl(new URL(rawImage, response.url).href);
-    res.json({ title: $('meta[property="og:title"]').attr('content') || $('h1').first().text().trim() || 'Imagem pública', pageUrl: response.url, imageUrl: imageUrl.href });
+    res.json({ title: metaContent(html, 'og:title') || 'Imagem pública', pageUrl: response.url, imageUrl: imageUrl.href });
   } catch (error) {
     const message = error.name === 'AbortError' ? 'A plataforma demorou demasiado a responder.' : (error.message || 'Não foi possível analisar o link.');
     res.status(400).json({ error: message });
