@@ -5,6 +5,7 @@ Ferramenta estática para organizar fotografias pessoais que o utilizador já ex
 ## O que faz
 
 - identifica localmente a plataforma a partir de um URL de perfil;
+- permite abrir/descarregar um URL direto de uma imagem pública;
 - encaminha para os canais oficiais de exportação do Facebook/Meta, Instagram e TikTok;
 - permite selecionar ou arrastar fotografias exportadas;
 - descarrega os ficheiros escolhidos diretamente no navegador;
@@ -21,3 +22,5 @@ Um site GitHub Pages é uma aplicação estática. Não deve tentar contornar pe
 3. Guarda e abre o endereço fornecido pelo GitHub Pages.
 
 O site não necessita de build, Node.js ou variáveis secretas.
+
+Quando é usado um link de perfil, a página apenas identifica a plataforma. Para descarregar uma pré-visualização pública, cola o endereço direto do ficheiro JPG/PNG/WEBP obtido na própria página ou através da opção oficial de guardar a imagem. Um link de perfil restrito, sem sessão ou sem autorização, não fornece um ficheiro que o site possa descarregar legitimamente.

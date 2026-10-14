@@ -1,6 +1,8 @@
 const urlInput = document.querySelector('#profile-url');
 const scanButton = document.querySelector('#scan-btn');
 const result = document.querySelector('#scan-result');
+const imageUrlInput = document.querySelector('#image-url');
+const imageDownloadButton = document.querySelector('#image-download-btn');
 const fileInput = document.querySelector('#file-input');
 const fileList = document.querySelector('#file-list');
 const dropzone = document.querySelector('#dropzone');
@@ -40,6 +42,29 @@ scanButton.addEventListener('click', () => {
   result.innerHTML = `<strong>${platform.name} identificado.</strong><br>${platform.recovery} Um site externo não pode obter conteúdo restrito apenas pelo link. Depois de exportares os ficheiros pela plataforma, adiciona-os no passo 03.`;
 });
 
+imageDownloadButton.addEventListener('click', () => {
+  const value = imageUrlInput.value.trim();
+  try {
+    const url = new URL(value);
+    if (!/^https?:$/.test(url.protocol) || !/\.(jpe?g|png|webp|gif|heic)(?:$|[?#])/i.test(url.pathname)) throw new Error();
+    const link = document.createElement('a');
+    link.href = url.href;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.download = `fotovault-${Date.now()}`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    result.hidden = false;
+    result.classList.remove('warning');
+    result.innerHTML = '<strong>Download iniciado.</strong><br>Se o navegador abrir a imagem numa nova aba, usa o menu da imagem para a guardar no dispositivo.';
+  } catch {
+    result.hidden = false;
+    result.classList.add('warning');
+    result.innerHTML = '<strong>URL de imagem inválido.</strong><br>Cola o endereço direto de um ficheiro JPG, PNG, WEBP, GIF ou HEIC público — não apenas o endereço do perfil.';
+  }
+});
+
 function formatSize(bytes) { return `${(bytes / 1024 / 1024).toFixed(2)} MB`; }
 function renderFiles() {
   fileList.hidden = selectedFiles.length === 0;
@@ -69,6 +94,7 @@ downloadButton.addEventListener('click', () => {
 });
 clearButton.addEventListener('click', () => {
   urlInput.value = '';
+  imageUrlInput.value = '';
   result.hidden = true;
   selectedFiles = [];
   fileInput.value = '';
